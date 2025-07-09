@@ -46,6 +46,7 @@ def admin_login():
         if password == ADMIN_PASSWORD:
             st.session_state.authenticated = True
             st.success("Login successful!")
+            st.experimental_rerun()
         else:
             st.error("Invalid password")
 
