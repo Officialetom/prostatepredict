@@ -45,8 +45,8 @@ def admin_login():
     if st.button("Login"):
         if password == ADMIN_PASSWORD:
             st.session_state.authenticated = True
-            st.success("Login successful!")
-            st.experimental_rerun()
+            st.success("Login successful! Please wait...")
+            st.experimental_rerun()  # Force rerun to enter main app
         else:
             st.error("Invalid password")
 
@@ -139,7 +139,14 @@ def view_predictions():
     else:
         st.info("No predictions made yet.")
 
+def logout_button():
+    if st.sidebar.button("🔓 Logout"):
+        st.session_state.authenticated = False
+        st.session_state.model_data = None
+        st.experimental_rerun()
+
 def main_app():
+    logout_button()
     st.title("🧠 Prostate Cancer Risk Predictor")
 
     model_data = load_model()
