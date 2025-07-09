@@ -40,7 +40,7 @@ if "model_data" not in st.session_state:
     st.session_state.model_data = None
 
 def admin_login():
-    st.title("🔐 Admin Login")
+    st.title("Admin Login - Prostate Cancer Risk Prediction System")
     password = st.text_input("Enter Admin Password", type="password")
     if st.button("Login"):
         if password == ADMIN_PASSWORD:
@@ -126,10 +126,10 @@ def export_predictions_pdf():
     pdf_output = io.BytesIO()
     pdf.output(pdf_output)
     pdf_output.seek(0)
-    st.download_button("📄 Download PDF Report", pdf_output, file_name="predictions_report.pdf")
+    st.download_button("Download PDF Report", pdf_output, file_name="predictions_report.pdf")
 
 def view_predictions():
-    st.header("📁 Prediction History")
+    st.header("Prediction History")
     cursor.execute("SELECT name, age, psa, prostate_volume, family_history, prediction FROM predictions")
     rows = cursor.fetchall()
     if rows:
@@ -147,7 +147,7 @@ def logout_button():
 
 def main_app():
     logout_button()
-    st.title("🧠 Prostate Cancer Risk Predictor")
+    st.title("Prostate Cancer Risk Predictor")
 
     model_data = load_model()
     if not model_data:
