@@ -55,6 +55,9 @@ def load_model():
 
 def train_model(data):
     st.info("Training model...")
+
+    data = data.drop(columns=[col for col in data.columns if col.lower() in ["name", "id"]], errors='ignore')
+    
     X = data.drop("target", axis=1)
     y = data["target"]
 
