@@ -16,9 +16,10 @@ from fpdf import FPDF
 # Constants
 ADMIN_PASSWORD = "admin123"
 MODEL_FILE = "model.pkl"
+DB_FILE = "predictions.db"
 
-# In-memory database (reset on reload)
-conn = sqlite3.connect(":memory:", check_same_thread=False)
+# Persistent database
+conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS predictions (
