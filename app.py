@@ -139,9 +139,10 @@ def export_predictions_pdf():
         pdf.cell(200, 10, txt=line, ln=True)
 
     pdf_output = io.BytesIO()
-    pdf.output(pdf_output)
-    pdf_output.seek(0)
+    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_output = io.BytesIO(pdf_bytes)
     st.download_button("Download PDF Report", pdf_output, file_name="predictions_report.pdf")
+
 
 def view_predictions():
     st.header("📁 Prediction History")
