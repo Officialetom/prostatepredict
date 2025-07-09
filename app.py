@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io
+import os
 import pickle
 import sqlite3
 from sklearn.ensemble import RandomForestClassifier
@@ -14,6 +15,7 @@ from fpdf import FPDF
 
 # Constants
 ADMIN_PASSWORD = "admin123"
+MODEL_FILE = "model.pkl"
 
 # In-memory database (reset on reload)
 conn = sqlite3.connect(":memory:", check_same_thread=False)
@@ -46,18 +48,24 @@ def admin_login():
         if password == ADMIN_PASSWORD:
             st.session_state.authenticated = True
             st.success("Login successful! Please wait...")
-            st.rerun()  # Force rerun to enter main app
+            st.rerun()  # For Streamlit >= 1.30
         else:
             st.error("Invalid password")
 
 def load_model():
-    return st.session_state.model_data
+    if os.path.exists(MODEL_FILE):
+        with open(MODEL_FILE, "rb") as f:
+            model_data = pickle.load(f)
+            st.session_state.model_data = model_data
+            return model_data
+    return None
 
 def train_model(data):
     st.info("Training model...")
 
+    # Drop non-numeric fields
     data = data.drop(columns=[col for col in data.columns if col.lower() in ["name", "id"]], errors='ignore')
-    
+
     X = data.drop("target", axis=1)
     y = data["target"]
 
@@ -67,8 +75,12 @@ def train_model(data):
     model = RandomForestClassifier()
     model.fit(X_scaled, y)
 
+    # Save to disk
+    with open(MODEL_FILE, "wb") as f:
+        pickle.dump((model, scaler), f)
+
     st.session_state.model_data = (model, scaler)
-    st.success("Model trained and stored in session!")
+    st.success("Model trained and saved successfully!")
     return model, scaler
 
 def predict_risk(model, scaler, input_data):
@@ -132,7 +144,7 @@ def export_predictions_pdf():
     st.download_button("Download PDF Report", pdf_output, file_name="predictions_report.pdf")
 
 def view_predictions():
-    st.header("Prediction History")
+    st.header("📁 Prediction History")
     cursor.execute("SELECT name, age, psa, prostate_volume, family_history, prediction FROM predictions")
     rows = cursor.fetchall()
     if rows:
@@ -165,7 +177,7 @@ def main_app():
 
     if model_data:
         model, scaler = model_data
-        tab1, tab2 = st.tabs(["🔍 Predict", "📂 View Predictions"])
+        tab1, tab2 = st.tabs(["Predict", "View Predictions"])
         with tab1:
             prediction_form(model, scaler)
         with tab2:
